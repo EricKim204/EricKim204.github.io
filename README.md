@@ -4,5 +4,6 @@ A simple portfolio website showcasing my projects
 
 # Projects
 
-_TO BE UPDATED_
+**1. Auslan Web App**
+
 
