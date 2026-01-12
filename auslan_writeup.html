@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auslan Fingerspelling - Project Write-Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        section { scroll-margin-top: 20px; }
+        .mermaid svg { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body class="bg-white text-gray-900">
+    <div class="max-w-4xl mx-auto px-4 md:px-8 py-16">
+        <a href="index.html#projects" class="text-sm font-medium text-gray-600 hover:text-gray-900">? Back to Projects</a>
+        <h1 class="text-4xl md:text-5xl font-light mt-6">Auslan Fingerspelling Web App</h1>
+        <p class="text-gray-600 mt-4 leading-relaxed">
+            Capstone project turned passion build with Victor Goh. I focused on the fingerspelling feature: training pipeline,
+            architecture choices, and on-device inference that runs entirely in the browser.
+        </p>
+
+        <section class="mt-12">
+            <h2 class="text-2xl font-medium">Why</h2>
+            <p class="text-gray-600 mt-3 leading-relaxed">
+                Auslan literacy is an accessibility gap. We wanted a lightweight, gamified way to practice fingerspelling
+                without server costs or privacy tradeoffs. The app had to run fully on-device.
+            </p>
+        </section>
+
+        <section class="mt-10">
+            <h2 class="text-2xl font-medium">What</h2>
+            <p class="text-gray-600 mt-3 leading-relaxed">
+                A browser-based Auslan fingerspelling recognizer that uses MediaPipe for real-time hand landmarks and a custom
+                TensorFlow model for letter classification. Static deployment, no backend.
+            </p>
+        </section>
+
+        <section class="mt-10">
+            <h2 class="text-2xl font-medium">Design Decisions</h2>
+            <ul class="mt-3 text-gray-600 leading-relaxed list-disc pl-5 space-y-2">
+                <li>Image-based CNN inference was too heavy and costly for a static site.</li>
+                <li>MediaPipe Hand Landmarker provides a compact, real-time abstraction.</li>
+                <li>Landmark tensors enabled small MLPs instead of heavy CNN/RNN models.</li>
+            </ul>
+        </section>
+
+        <section class="mt-10">
+            <h2 class="text-2xl font-medium">Training Flow</h2>
+            <ol class="mt-3 text-gray-600 leading-relaxed list-decimal pl-5 space-y-2">
+                <li>Collect raw images for 26 classes (A-Z).</li>
+                <li>Run MediaPipe Hand Landmarker on each frame.</li>
+                <li>Extract <code class="text-gray-900">worldLandmarks</code> (3D), reshape to <code class="text-gray-900">[21,3,2]</code>.</li>
+                <li>Pad missing hand landmarks with <code class="text-gray-900">[-1,-1,-1]</code>.</li>
+                <li>Train lightweight classifiers with validation split and LR schedule.</li>
+                <li>Export best model to TensorFlow.js for in-browser inference.</li>
+            </ol>
+        </section>
+
+        <section class="mt-10">
+            <h2 class="text-2xl font-medium">Architecture Choices</h2>
+            <ul class="mt-3 text-gray-600 leading-relaxed list-disc pl-5 space-y-2">
+                <li>Simple 3-layer MLP as a strong baseline.</li>
+                <li>Bilateral MLP with per-hand branches and feature fusion.</li>
+                <li>Residual fusion to improve accuracy without adding much latency.</li>
+            </ul>
+        </section>
+
+        <section class="mt-12">
+            <h2 class="text-2xl font-medium">System Diagram</h2>
+            <div class="mt-4 bg-gray-50 border border-gray-200 rounded p-4">
+                <div class="mermaid">
+flowchart LR
+  A[Webcam Frame] --> B[MediaPipe Hand Landmarker]
+  B --> C[worldLandmarks 21x3 per hand]
+  C --> D[Pad missing hand with -1]
+  D --> E[Reshape to 21x3x2]
+  E --> F[Lightweight MLP Classifier]
+  F --> G[TFJS GraphModel]
+  G --> H[Letter Prediction UI]
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-12">
+            <h2 class="text-2xl font-medium">Links</h2>
+            <div class="mt-3 flex flex-wrap gap-4">
+                <a href="auslan_demo.html" class="bg-gray-900 text-white px-5 py-2 rounded hover:bg-gray-800">View Demo</a>
+                <a href="https://github.com/victorwkb/auslan" target="_blank" rel="noopener noreferrer" class="text-gray-900 hover:text-gray-600 font-medium">GitHub ?</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+    </script>
+</body>
+</html>
